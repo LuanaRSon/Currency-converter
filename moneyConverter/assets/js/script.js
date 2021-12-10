@@ -18,70 +18,77 @@ const convertTo = document.getElementById("secondSelect");
 const divCurrency2 = document.querySelector(".currency2");
 let inputToConvert = document.getElementById("numberToConvert");
 const btnConvert = document.querySelector(".btn-convert");
-const tagP1 = document.querySelector(".currency-value1");  
- 
+const realCurrencyValue = document.querySelector(".currency-value1");   
+
+const cleanInputValue = () => inputToConvert.value = ``;
 
 const changeInfo = () => {  
+  const [ dolar, euro, bitcoin ] = imagesHTML;
+
   switch (convertTo.value) {    
     case "dolar":           
       divCurrency2.innerHTML = `
-      <img src="${imagesHTML[0].img}" 
-      alt="${imagesHTML[0].imgAlt}">
-      <h2 class="currency-name1">${imagesHTML[0].name}</h2>
-      <p class="currency-value2">US$ 0,00</p>      
+      <img src="${dolar.img}" 
+      alt="${dolar.imgAlt}">
+      <h2 class="currency-name1">${dolar.name}</h2>
+      <p class="currency-value2">$0.00</p>      
       `;
       break;
 
     case "euro":      
       divCurrency2.innerHTML = `
-      <img src="${imagesHTML[1].img}" 
-      alt="${imagesHTML[1].imgAlt}">
-      <h2 class="currency-name1">${imagesHTML[1].name}</h2>
-      <p class="currency-value2">€ 0,00</p>      
+      <img src="${euro.img}" 
+      alt="${euro.imgAlt}">
+      <h2 class="currency-name1">${euro.name}</h2>
+      <p class="currency-value2"> 0,00 €</p>      
       `;
       break;
 
     case "bitcoin":       
       divCurrency2.innerHTML = `
-      <img src="${imagesHTML[2].img}" 
-      alt="${imagesHTML[2].imgAlt}">
-      <h2 class="currency-name1">${imagesHTML[2].name}</h2>  
-      <p class="currency-value2">฿ 0,0000</p>    
+      <img src="${bitcoin.img}" 
+      alt="${bitcoin.imgAlt}">
+      <h2 class="currency-name1">${bitcoin.name}</h2>  
+      <p class="currency-value2">0,00 XBT</p>    
       `;
       break;    
   }
-  tagP1.innerHTML = `R$ 0,00`; 
+  realCurrencyValue.innerHTML = `R$ 0,00`; 
 };
 
 const convertValue = () => {     
-  const tagP2 = document.querySelector(".currency-value2");
-  const divError = document.querySelector(".error-message");  
+  const currencyValue = document.querySelector(".currency-value2");
+  const errorMessage = document.querySelector(".error-message");  
   let valueToConvert = parseFloat(inputToConvert.value);   
   let valueConverted; 
 
-  if(!valueToConvert) {
-    return divError.innerHTML = `<p>Insira um número válido.</p>`
+  if(!valueToConvert || valueToConvert < 0) {
+    return errorMessage.innerHTML = `<p>Insira um número válido.</p>`
   } else {
-    divError.innerHTML = ``;
+    errorMessage.innerHTML = ``;
 
     if(convertTo.value === "dolar") {
-      valueConverted = (valueToConvert / 5.54).toFixed(2);
-      tagP1.innerHTML = `R$ ${valueToConvert.toFixed(2)}`;
-      tagP2.innerHTML = `US$ ${valueConverted}`; 
+      valueConverted = valueToConvert / 5.54;      
+      currencyValue.innerHTML = new Intl.NumberFormat('en-US', { 
+        style: 'currency', 
+        currency: 'USD' }).format(valueConverted); 
     } else if (convertTo.value === "euro"){
-      valueConverted = (valueToConvert / 6.29).toFixed(2);
-      tagP1.innerHTML = `R$ ${valueToConvert.toFixed(2)}`;
-      tagP2.innerHTML = `€ ${valueConverted}`; 
+        valueConverted = valueToConvert / 6.29;      
+        currencyValue.innerHTML = new Intl.NumberFormat('de-DE', { 
+          style: 'currency', 
+          currency: 'EUR' }).format(valueConverted);  
     } else {
-      valueConverted = (valueToConvert * 0.0000039).toFixed(4);
-      tagP1.innerHTML = `R$ ${valueToConvert.toFixed(2)}`;
-      tagP2.innerHTML = `฿ ${valueConverted}`; 
+        valueConverted = valueToConvert * 0.0000039;     
+        currencyValue.innerHTML = new Intl.NumberFormat('de-DE', { 
+          style: 'currency', 
+          currency: 'XBT' }).format(valueConverted); 
     }
+    realCurrencyValue.innerHTML = new Intl.NumberFormat('pt-BR', { 
+      style: 'currency', 
+      currency: 'BRL' }).format(valueToConvert); 
     cleanInputValue();
   }  
 };
-
-const cleanInputValue = () => inputToConvert.value = ``;
 
 convertTo.addEventListener("change", changeInfo);
 btnConvert.addEventListener("click", convertValue);
