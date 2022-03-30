@@ -15,52 +15,48 @@ const imagesHTML = [{
 }];
 
 const convertTo = document.getElementById("secondSelect");
-const divCurrency2 = document.querySelector(".currency2");
-let inputToConvert = document.getElementById("numberToConvert");
+const inputToConvert = document.getElementById("numberToConvert");
 const btnConvert = document.querySelector(".btn-convert");
-const realCurrencyValue = document.querySelector(".currency-value1");   
-
-const cleanInputValue = () => inputToConvert.value = ``;
+const realCurrencyValue = document.querySelector(".currency-value1"); 
 
 const changeInfo = () => {  
   const [ dolar, euro, bitcoin ] = imagesHTML;
+  const imgCurrency = document.getElementById("currency-img2");
+  const currencyName = document.getElementsByClassName("currency-name2")[0];
 
   switch (convertTo.value) {    
-    case "dolar":           
-      divCurrency2.innerHTML = `
-      <img src="${dolar.img}" 
-      alt="${dolar.imgAlt}">
-      <h2 class="currency-name1">${dolar.name}</h2>
-      <p class="currency-value2">$0.00</p>      
-      `;
+    case "dolar":       
+      imgCurrency.src = dolar.img;
+      imgCurrency.alt = dolar.imgAlt;
+      currencyName.innerHTML = dolar.name;      
       break;
 
-    case "euro":      
-      divCurrency2.innerHTML = `
-      <img src="${euro.img}" 
-      alt="${euro.imgAlt}">
-      <h2 class="currency-name1">${euro.name}</h2>
-      <p class="currency-value2"> 0,00 €</p>      
-      `;
+    case "euro":   
+      imgCurrency.src = euro.img;
+      imgCurrency.alt = euro.imgAlt;
+      currencyName.innerHTML = euro.name;        
       break;
 
-    case "bitcoin":       
-      divCurrency2.innerHTML = `
-      <img src="${bitcoin.img}" 
-      alt="${bitcoin.imgAlt}">
-      <h2 class="currency-name1">${bitcoin.name}</h2>  
-      <p class="currency-value2">0,00 XBT</p>    
-      `;
+    case "bitcoin": 
+      imgCurrency.src = bitcoin.img;
+      imgCurrency.alt = bitcoin.imgAlt;
+      currencyName.innerHTML = bitcoin.name;       
       break;    
   }
-  realCurrencyValue.innerHTML = `R$ 0,00`; 
+  convertValue();  
 };
 
-const convertValue = () => {     
+const convertValue = async () => {     
   const currencyValue = document.querySelector(".currency-value2");
   const errorMessage = document.querySelector(".error-message");  
   let valueToConvert = parseFloat(inputToConvert.value);   
   let valueConverted; 
+
+  const data = await fetch("https://economia.awesomeapi.com.br/last/USD-BRL,EUR-BRL,BTC-BRL").then(response => response.json());
+  
+  const dolar = data.USDBRL.high;
+  const euro = data.EURBRL.high;
+  const bitcoin = (data.BTCBRL.high) /.0010;
 
   if(!valueToConvert || valueToConvert < 0) {
     return errorMessage.innerHTML = `<p>Insira um número válido.</p>`
@@ -68,25 +64,25 @@ const convertValue = () => {
     errorMessage.innerHTML = ``;
 
     if(convertTo.value === "dolar") {
-      valueConverted = valueToConvert / 5.54;      
+      valueConverted = valueToConvert / dolar;      
       currencyValue.innerHTML = new Intl.NumberFormat('en-US', { 
         style: 'currency', 
         currency: 'USD' }).format(valueConverted); 
     } else if (convertTo.value === "euro"){
-        valueConverted = valueToConvert / 6.29;      
+        valueConverted = valueToConvert / euro;      
         currencyValue.innerHTML = new Intl.NumberFormat('de-DE', { 
           style: 'currency', 
           currency: 'EUR' }).format(valueConverted);  
     } else {
-        valueConverted = valueToConvert * 0.0000039;     
+        valueConverted = valueToConvert / bitcoin;     
         currencyValue.innerHTML = new Intl.NumberFormat('de-DE', { 
           style: 'currency', 
-          currency: 'XBT' }).format(valueConverted); 
+          currency: 'BTC',
+          minimumFractionDigits: 8 }).format(valueConverted); 
     }
     realCurrencyValue.innerHTML = new Intl.NumberFormat('pt-BR', { 
       style: 'currency', 
-      currency: 'BRL' }).format(valueToConvert); 
-    cleanInputValue();
+      currency: 'BRL' }).format(valueToConvert);     
   }  
 };
 
